@@ -2,9 +2,9 @@
 
 ### 0. 运行方法
 
-主要借鉴了项目https://github.com/wizyoung/YOLOv3_TensorFlow，为了在TX2上使用TF-TRT加速进行了一些改动。
+主要借鉴了[该项目](https://github.com/wizyoung/YOLOv3_TensorFlow) ，为了在TX2上使用TF-TRT加速进行了一些改动。
 
-TF-TRT的使用主要参考了https://github.com/NVIDIA-AI-IOT/tf_trt_models，以及TF-TRT官方文档https://docs.nvidia.com/deeplearning/dgx/tf-trt-user-guide/index.html。
+TF-TRT的使用主要参考了[NVIDIA官方示例](https://github.com/NVIDIA-AI-IOT/tf_trt_models) ，以及[TF-TRT官方文档](https://docs.nvidia.com/deeplearning/dgx/tf-trt-user-guide/index.html) 。
 
 我使用的运行环境：
 
@@ -14,7 +14,7 @@ python2.7 (理论上python3也可以运行，可能需要稍微修改一下代�
 
 #### 运行过程：
 
-- 首先下载YOLOv3的权重文件，下载地址[here](https://pjreddie.com/media/files/yolov3.weights). 把 weights 文件放在这个目录下 `./data/darknet_weights/` 然后运行:
+- 首先下载YOLOv3的权重文件，[下载地址](https://pjreddie.com/media/files/yolov3.weights)（如果本地有yolov3的权重文件也可以直接复制过来）。把 weights 文件放在这个目录下 `./data/darknet_weights/` 然后运行:
 
 ```shell
 python convert_weight.py
@@ -53,7 +53,7 @@ trt_graph = trt.create_inference_graph(
 )
 ```
 
-具体的参数含义参考TF-TRT文档https://docs.nvidia.com/deeplearning/dgx/tf-trt-user-guide/index.html。
+具体的参数含义参考[TF-TRT文档](https://docs.nvidia.com/deeplearning/dgx/tf-trt-user-guide/index.html)。
 
 - 最后，使用加速后的pb模型进行推理（同样，不要忘记在python文件中设置IMAGE_SIZE以及测试图片路径等参数），运行：
 
