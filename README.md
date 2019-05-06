@@ -1,5 +1,85 @@
 #  YOLOv3_TensorFlow
 
+### 0. 运行方法
+
+主要借鉴了项目https://github.com/wizyoung/YOLOv3_TensorFlow，为了在TX2上使用TF-TRT加速进行了一些改动。
+
+TF-TRT的使用主要参考了https://github.com/NVIDIA-AI-IOT/tf_trt_models，以及TF-TRT官方文档https://docs.nvidia.com/deeplearning/dgx/tf-trt-user-guide/index.html。
+
+我使用的运行环境：
+
+tensorflow1.8 - gpu 
+
+python2.7 (理论上python3也可以运行，可能需要稍微修改一下代码)
+
+#### 运行过程：
+
+- 首先下载YOLOv3的权重文件，下载地址[here](https://pjreddie.com/media/files/yolov3.weights). 把 weights 文件放在这个目录下 `./data/darknet_weights/` 然后运行:
+
+```shell
+python convert_weight.py
+```
+
+注意转换时需要设置输入图片大小image_size（32的倍数，建议先使用160尝试）。运行后将会生成TensorFlow checkpoint模型，存储在这个目录： `./data/darknet_weights/` 。
+
+- 然后需要把checkpoint模型转化为固化的pb模型，即frozen_graph。运行：
+
+~~~shell
+python export_pb.py
+~~~
+
+得到frozen_graph_def.pb模型，也存储在 `./data/darknet_weights/`目录下。
+
+你可以运行yolov3pb.py来查看是否可以正常运行pb模型进行推理（需要设置IMAGE_SIZE），在这里如果图片较大的话可能会被killed，遇到这个问题可以尝试改小网络的输入图片大小。
+
+- 接下来我们需要把pb模型使用TensorRT加速，使用TF-TRT API接口，运行：
+
+```shell 
+python pb_to_trt.py
+```
+
+该步骤也需要在pb_to_trt.py中设置IMAGE_SIZE的大小。运行后得到构建的引擎图文件trt_graph.pb，仍存储在 `./data/darknet_weights/`目录下。
+
+如果你要更改TensorRT加速时的相关设置，只需要更改trt.create_inference_graph()函数中的参数：
+
+```shell
+trt_graph = trt.create_inference_graph(
+    input_graph_def=output_graph_def,
+    outputs=output_names,
+    max_batch_size=1,
+    max_workspace_size_bytes=1 << 25,
+    precision_mode='FP16',
+    minimum_segment_size=5
+)
+```
+
+具体的参数含义参考TF-TRT文档https://docs.nvidia.com/deeplearning/dgx/tf-trt-user-guide/index.html。
+
+- 最后，使用加速后的pb模型进行推理（同样，不要忘记在python文件中设置IMAGE_SIZE以及测试图片路径等参数），运行：
+
+```shell
+python trt.py
+```
+
+执行推理时，我遇到的报错如下：
+
+```shell
+2019-04-29 04:31:34.738939: F tensorflow/contrib/tensorrt/shape_fn/trt_shfn.cc:52] TensorRT engine requires consistent batch size
+Aborted(core dumped)
+```
+
+该报错仍未解决。
+
+#### 其他
+
+- ckpt文件的执行可以使用test_single_image.py文件以及video_test.py，你需要指定图片或视频文件的路径。
+- pb_to_tensorboard.py用于使用tensorboard查看pb文件的网络结构，tensorrt构建的trt_graph.pb也可以使用tensorboard查看.
+- yolov3_trt.py相当于pb_to_trt.py与trt.py的集合，将pb文件转化为trt模型并直接执行推理，不过该文件测试比较少可能有一些bug。
+
+
+
+### 以下是原项目的readme
+
 ### 1. Introduction
 
 This is my implementation of [YOLOv3](https://pjreddie.com/media/files/papers/YOLOv3.pdf) in pure TensorFlow. It contains the full pipeline of training and evaluation on your own dataset. The key features of this repo are:
@@ -209,15 +289,9 @@ There are many skills you can try during training:
 
 ### Credits:
 
-I refer to many fantastic repos during the implementation:
+folk from https://github.com/wizyoung/YOLOv3_TensorFlow
 
-https://github.com/YunYang1994/tensorflow-yolov3
 
-https://github.com/qqwweee/keras-yolo3
-
-https://github.com/eriklindernoren/PyTorch-YOLOv3
-
-https://github.com/pjreddie/darknet
 
 
 

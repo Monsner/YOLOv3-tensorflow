@@ -63,4 +63,3 @@ __pycache__/
 *.weights
 .idea/
 log/
-data/
