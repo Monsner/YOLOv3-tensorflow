@@ -29,11 +29,11 @@ def recognize(jpg_path, pb_file_path):
     img = img[np.newaxis, :] / 255.
     with tf.Graph().as_default():
         output_graph_def = tf.GraphDef()
-        print "Load Frozen_Graph File ..."
+        print ("Load Frozen_Graph File ...")
         with open(pb_file_path, "rb") as f:
             output_graph_def.ParseFromString(f.read())
         tf.import_graph_def(output_graph_def, name="")
-        print "Finished"
+        print ("Finished")
 
         # GPU_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
         config = tf.ConfigProto()# gpu_options=GPU_options)

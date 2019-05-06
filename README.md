@@ -72,6 +72,7 @@ Aborted(core dumped)
 
 #### 其他
 
+- 由于我拿到TX2板子时，上面已经安装了TF-TRT，所以我没有自己安装TF-TRT的经验，不过在官方文档上似乎只需要安装tensorflow -gpu版本，就已经自动包含了TF-TRT。
 - ckpt文件的执行可以使用test_single_image.py文件以及video_test.py，你需要指定图片或视频文件的路径。
 - pb_to_tensorboard.py用于使用tensorboard查看pb文件的网络结构，tensorrt构建的trt_graph.pb也可以使用tensorboard查看.
 - yolov3_trt.py相当于pb_to_trt.py与trt.py的集合，将pb文件转化为trt模型并直接执行推理，不过该文件测试比较少可能有一些bug。

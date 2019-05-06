@@ -35,11 +35,11 @@ def recognize(jpg_path, pb_file_path):
         tf_config.gpu_options.allow_growth = True
 
         with tf.Session(config = tf_config) as sess:
-            print "Load TRT_Graph File ..."
+            print ("Load TRT_Graph File ...")
             with open(pb_file_path, "rb") as f:
                 output_graph_def = tf.GraphDef()
                 output_graph_def.ParseFromString(f.read())
-            print "Finished"
+            print ("Finished")
             input_name = "import/Placeholder"
             output_name1 = "import/yolov3/yolov3_head/feature_map_1"
             output_name2 = "import/yolov3/yolov3_head/feature_map_2"
@@ -48,9 +48,9 @@ def recognize(jpg_path, pb_file_path):
 
             yolo_model = yolov3(num_class, anchors)
 
-            print "Import TRT Graph ..."
+            print ("Import TRT Graph ...")
             output_node = tf.import_graph_def(output_graph_def, return_elements = ["yolov3/yolov3_head/feature_map_1","yolov3/yolov3_head/feature_map_2","yolov3/yolov3_head/feature_map_3"])
-            print "Finished"
+            print ("Finished")
             # for op in tf.get_default_graph().as_graph_def().node:
             #    print(op.name)
             
@@ -60,14 +60,14 @@ def recognize(jpg_path, pb_file_path):
             feature_map_3 = sess.graph.get_tensor_by_name(output_name3 + ":0")
             features = feature_map_1, feature_map_2, feature_map_3
             sess.run(output_node, feed_dict={tf_input:img[None, ...]})
-            print "1111111"
+            print ("1111111")
 
             yolo_model.pb_forward(tf_input)
 
             pred_boxes, pred_confs, pred_probs = yolo_model.predict(features)
 
             pred_scores = pred_confs * pred_probs
-            print "Detection ......"
+            print ("Detection ......")
             boxes, scores, labels = gpu_nms(pred_boxes, pred_scores, num_class, max_boxes=30, score_thresh=0.4,
                                             iou_thresh=0.5)
             boxes_, scores_, labels_ = sess.run([boxes, scores, labels], feed_dict={tf_input:img[None, ...]})
